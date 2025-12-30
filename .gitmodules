@@ -1,0 +1,3 @@
+[submodule "django-wedding-website"]
+	path = django-wedding-website
+	url = https://github.com/czue/django-wedding-website.git
