@@ -3,7 +3,7 @@ import { setupManifest } from '@start9labs/start-sdk'
 export const manifest = setupManifest({
   id: 'django-wedding-website',
   title: 'Django Wedding Website',
-  license: 'MIT',
+  license: 'Apache-2.0',
   wrapperRepo:
     'https://github.com/Start9Labs/django-wedding-website-startos',
   upstreamRepo: 'https://github.com/czue/django-wedding-website',
@@ -23,6 +23,11 @@ export const manifest = setupManifest({
           workdir: './',
           dockerfile: 'Dockerfile',
         },
+      },
+    },
+    nginx: {
+      source: {
+        dockerTag: 'nginx:alpine',
       },
     },
   },
