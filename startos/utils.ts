@@ -38,6 +38,14 @@ export function getNginxSub(effects: T.Effects) {
   )
 }
 
+export async function getHttpInterfaceUrls(
+  effects: T.Effects,
+): Promise<string[]> {
+  return sdk.serviceInterface
+    .getOwn(effects, 'ui', (i) => i?.addressInfo?.nonLocal.format() || [])
+    .const()
+}
+
 export function generateNginxConf(): string {
   return `upstream app_server {
     server 127.0.0.1:8000 fail_timeout=0;
@@ -72,6 +80,11 @@ interface LocalSettingsConfig {
   debug: boolean
   allowedHosts: string[]
   smtp: T.SmtpValue | null
+  coupleName?: string
+  weddingDate?: string
+  weddingLocation?: string
+  websiteUrl?: string
+  contactEmail?: string
 }
 
 export function generateLocalSettings(config: LocalSettingsConfig): string {
@@ -84,17 +97,17 @@ export function generateLocalSettings(config: LocalSettingsConfig): string {
   if (config.smtp) {
     emailSettings = `# Email settings - SMTP configured
 MAIL_BACKEND = 'smtp'
-EMAIL_HOST = '${config.smtp.server}'
+EMAIL_HOST = '${config.smtp.host}'
 EMAIL_PORT = ${config.smtp.port}
-EMAIL_HOST_USER = '${config.smtp.login}'
+EMAIL_HOST_USER = '${config.smtp.username}'
 EMAIL_HOST_PASSWORD = '${config.smtp.password ?? ''}'
-EMAIL_USE_TLS = ${config.smtp.port === 587 ? 'True' : 'False'}
-EMAIL_USE_SSL = ${config.smtp.port === 465 ? 'True' : 'False'}
-DEFAULT_FROM_EMAIL = '${config.smtp.from}'
+EMAIL_USE_TLS = ${config.smtp.security === 'starttls' ? 'True' : 'False'}
+EMAIL_USE_SSL = ${config.smtp.security === 'tls' ? 'True' : 'False'}
+DEFAULT_FROM_EMAIL = '${config.contactEmail}'
 
 # Wedding site email settings
-DEFAULT_WEDDING_FROM_EMAIL = '${config.smtp.from}'
-DEFAULT_WEDDING_REPLY_EMAIL = '${config.smtp.from}'`
+DEFAULT_WEDDING_FROM_EMAIL = '${config.contactEmail}'
+DEFAULT_WEDDING_REPLY_EMAIL = '${config.contactEmail}'`
   } else {
     emailSettings = `# Email settings - not configured (emails logged to console)
 MAIL_BACKEND = 'console'
@@ -127,6 +140,13 @@ CSRF_TRUSTED_ORIGINS = [${csrfOrigins}]
 # Static files - collected to /data/static/ and served by nginx
 STATIC_URL = '/static/'
 STATIC_ROOT = '/data/static/'
+
+# Wedding details
+${config.coupleName ? `BRIDE_AND_GROOM = '${config.coupleName}'` : '# BRIDE_AND_GROOM not configured'}
+${config.weddingDate ? `WEDDING_DATE = '${config.weddingDate}'` : '# WEDDING_DATE not configured'}
+${config.weddingLocation ? `WEDDING_LOCATION = '${config.weddingLocation}'` : '# WEDDING_LOCATION not configured'}
+${config.websiteUrl ? `WEDDING_WEBSITE_URL = '${config.websiteUrl}'` : '# WEDDING_WEBSITE_URL not configured'}
+${config.contactEmail ? `DEFAULT_WEDDING_EMAIL = '${config.contactEmail}'` : '# DEFAULT_WEDDING_EMAIL not configured'}
 
 ${emailSettings}
 `

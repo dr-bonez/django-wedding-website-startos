@@ -1,5 +1,6 @@
 import { writeFile } from 'node:fs/promises'
 import { T } from '@start9labs/start-sdk'
+import { i18n } from './i18n'
 import { sdk } from './sdk'
 import {
   uiPort,
@@ -11,7 +12,7 @@ import {
 import { storeJson } from './fileModels/store.json'
 
 export const main = sdk.setupMain(async ({ effects }) => {
-  console.info('Starting Django Wedding Website!')
+  console.info(i18n('Starting Django Wedding Website!'))
 
   const store = await storeJson.read((s) => s).const(effects)
 
@@ -25,14 +26,14 @@ export const main = sdk.setupMain(async ({ effects }) => {
       smtpCredentials.from = smtp.value.customFrom
     }
   } else if (smtp?.selection === 'custom') {
-    smtpCredentials = smtp.value
+    smtpCredentials = smtp.value.provider.value
   }
 
   // Get the actual hostnames from StartOS service interfaces
   const allowedHosts =
     (await sdk.serviceInterface
       .getOwn(effects, 'ui', (i) =>
-        i?.addressInfo?.format('hostname-info').map((h) => h.hostname.value),
+        i?.addressInfo?.format('hostname-info').map((h) => h.hostname),
       )
       .const()) || []
 
@@ -42,9 +43,14 @@ export const main = sdk.setupMain(async ({ effects }) => {
   // Write localsettings.py directly to subcontainer rootfs (not a volume)
   const localSettingsContent = generateLocalSettings({
     secretKey: store?.secretKey ?? '',
-    debug: false,
+    debug: true,
     allowedHosts,
     smtp: smtpCredentials,
+    coupleName: store?.coupleName,
+    weddingDate: store?.weddingDate,
+    weddingLocation: store?.weddingLocation,
+    websiteUrl: store?.websiteUrl,
+    contactEmail: store?.contactEmail,
   })
   await writeFile(
     `${appSub.rootfs}/app/bigday/localsettings.py`,
@@ -94,11 +100,11 @@ export const main = sdk.setupMain(async ({ effects }) => {
         ],
       },
       ready: {
-        display: 'Gunicorn',
+        display: i18n('Gunicorn'),
         fn: () =>
           sdk.healthCheck.checkPortListening(effects, 8000, {
-            successMessage: 'Gunicorn is ready',
-            errorMessage: 'Gunicorn is not ready',
+            successMessage: i18n('Gunicorn is ready'),
+            errorMessage: i18n('Gunicorn is not ready'),
           }),
       },
       requires: ['migrate', 'collectstatic'],
@@ -109,11 +115,11 @@ export const main = sdk.setupMain(async ({ effects }) => {
         command: ['nginx', '-g', 'daemon off;'],
       },
       ready: {
-        display: 'Web Interface',
+        display: i18n('Web Interface'),
         fn: () =>
           sdk.healthCheck.checkPortListening(effects, uiPort, {
-            successMessage: 'The wedding website is ready',
-            errorMessage: 'The wedding website is not ready',
+            successMessage: i18n('The wedding website is ready'),
+            errorMessage: i18n('The wedding website is not ready'),
           }),
       },
       requires: ['gunicorn'],
