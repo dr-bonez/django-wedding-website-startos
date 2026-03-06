@@ -1,3 +1,4 @@
+import { i18n } from './i18n'
 import { sdk } from './sdk'
 import { uiPort } from './utils'
 
@@ -8,9 +9,9 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   })
 
   const ui = sdk.createInterface(effects, {
-    name: 'Web UI',
+    name: i18n('Web UI'),
     id: 'ui',
-    description: 'The wedding website and admin interface',
+    description: i18n('The wedding website and admin interface'),
     type: 'ui',
     masked: false,
     schemeOverride: null,
@@ -20,9 +21,9 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   })
 
   const admin = sdk.createInterface(effects, {
-    name: 'Admin Panel',
+    name: i18n('Admin Panel'),
     id: 'admin',
-    description: 'Django admin panel for managing guests and settings',
+    description: i18n('Django admin panel for managing guests and settings'),
     type: 'ui',
     masked: false,
     schemeOverride: null,

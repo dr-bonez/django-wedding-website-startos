@@ -1,3 +1,4 @@
+import { i18n } from '../i18n'
 import { sdk } from '../sdk'
 import { storeJson } from '../fileModels/store.json'
 
@@ -7,8 +8,10 @@ export const getAdminCredentials = sdk.Action.withoutInput(
 
   // metadata
   async ({ effects }) => ({
-    name: 'Get Admin Credentials',
-    description: 'Retrieve the admin username and password for the Django admin panel',
+    name: i18n('Get Admin Credentials'),
+    description: i18n(
+      'Retrieve the admin username and password for the Django admin panel',
+    ),
     warning: null,
     allowedStatuses: 'any',
     group: null,

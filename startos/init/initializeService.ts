@@ -1,11 +1,8 @@
 import { writeFile } from 'node:fs/promises'
+import { i18n } from '../i18n'
 import { getAdminCredentials } from '../actions/getAdminCredentials'
 import { sdk } from '../sdk'
-import {
-  getRandomPassword,
-  getAppSub,
-  generateLocalSettings,
-} from '../utils'
+import { getRandomPassword, getAppSub, generateLocalSettings } from '../utils'
 import { storeJson } from '../fileModels/store.json'
 
 export const initializeService = sdk.setupOnInit(async (effects, kind) => {
@@ -59,7 +56,8 @@ export const initializeService = sdk.setupOnInit(async (effects, kind) => {
     .runUntilSuccess(120_000)
 
   await sdk.action.createOwnTask(effects, getAdminCredentials, 'critical', {
-    reason:
+    reason: i18n(
       'Retrieve the admin password so you can manage your wedding website',
+    ),
   })
 })
