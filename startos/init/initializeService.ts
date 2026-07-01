@@ -2,7 +2,12 @@ import { writeFile } from 'node:fs/promises'
 import { i18n } from '../i18n'
 import { getAdminCredentials } from '../actions/getAdminCredentials'
 import { sdk } from '../sdk'
-import { getRandomPassword, getAppSub, generateLocalSettings } from '../utils'
+import {
+  getRandomPassword,
+  getRsvpToken,
+  getAppSub,
+  generateLocalSettings,
+} from '../utils'
 import { storeJson } from '../fileModels/store.json'
 
 export const initializeService = sdk.setupOnInit(async (effects, kind) => {
@@ -10,10 +15,12 @@ export const initializeService = sdk.setupOnInit(async (effects, kind) => {
 
   const adminPassword = getRandomPassword()
   const secretKey = getRandomPassword(50)
+  const rsvpToken = getRsvpToken()
 
   await storeJson.write(effects, {
     adminPassword,
     secretKey,
+    rsvpToken,
     smtp: { selection: 'disabled', value: {} },
   })
 
@@ -26,9 +33,10 @@ export const initializeService = sdk.setupOnInit(async (effects, kind) => {
     debug: false,
     allowedHosts: ['localhost'],
     smtp: null,
+    rsvpToken,
   })
   await writeFile(
-    `${appSub.rootfs}/app/bigday/localsettings.py`,
+    `${await appSub.rootfs}/app/bigday/localsettings.py`,
     localSettingsContent,
   )
 

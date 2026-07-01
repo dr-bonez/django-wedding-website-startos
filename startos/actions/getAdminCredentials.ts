@@ -22,11 +22,16 @@ export const getAdminCredentials = sdk.Action.withoutInput(
   async ({ effects }) => {
     const store = await storeJson.read((s) => s).once()
 
+    const rsvpUrl =
+      store?.websiteUrl && store?.rsvpToken
+        ? `${store.websiteUrl.replace(/\/+$/, '')}/rsvp/${store.rsvpToken}/`
+        : null
+
     return {
       version: '1' as const,
       title: 'Admin Credentials',
       message:
-        'Your admin username and password are below. Use these to log into the Django admin panel at /admin/',
+        'Your admin credentials and RSVP link are below. Use the credentials to log into the Django admin panel at /admin/. Print the RSVP link on your invitations.',
       result: {
         type: 'group',
         value: [
@@ -47,6 +52,28 @@ export const getAdminCredentials = sdk.Action.withoutInput(
             masked: true,
             copyable: true,
             qr: false,
+          },
+          {
+            type: 'single',
+            name: 'RSVP Link Word',
+            description:
+              'The secret word in your RSVP link. Guests type it to reach the RSVP page.',
+            value: store?.rsvpToken ?? 'UNKNOWN',
+            masked: false,
+            copyable: true,
+            qr: false,
+          },
+          {
+            type: 'single',
+            name: 'RSVP Link (print on invitations)',
+            description:
+              'The full RSVP URL guests visit to look up their party and respond.',
+            value:
+              rsvpUrl ??
+              'Set your Website URL via "Configure Wedding" to generate this link.',
+            masked: false,
+            copyable: true,
+            qr: !!rsvpUrl,
           },
         ],
       },

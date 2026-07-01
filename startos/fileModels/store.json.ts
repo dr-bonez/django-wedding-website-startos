@@ -1,10 +1,10 @@
-import { FileHelper, z } from '@start9labs/start-sdk'
+import { FileHelper, smtpShape, z } from '@start9labs/start-sdk'
 import { sdk } from '../sdk'
 
 const shape = z.object({
   adminPassword: z.string().optional().catch(undefined),
   secretKey: z.string().optional().catch(undefined),
-  smtp: sdk.inputSpecConstants.smtpInputSpec.validator.catch({
+  smtp: smtpShape.catch({
     selection: 'disabled' as const,
     value: {},
   }),
@@ -13,6 +13,7 @@ const shape = z.object({
   weddingLocation: z.string().optional().catch(undefined),
   websiteUrl: z.string().optional().catch(undefined),
   contactEmail: z.string().optional().catch(undefined),
+  rsvpToken: z.string().optional().catch(undefined),
 })
 
 export const storeJson = FileHelper.json(

@@ -4,6 +4,8 @@ import { i18n } from './i18n'
 import { sdk } from './sdk'
 import {
   uiPort,
+  getRsvpToken,
+  sanitizeRsvpToken,
   getAppSub,
   getNginxSub,
   generateLocalSettings,
@@ -16,6 +18,15 @@ export const main = sdk.setupMain(async ({ effects }) => {
 
   const store = await storeJson.read((s) => s).const(effects)
 
+  // Ensure a valid RSVP token exists (installs predating this feature won't have
+  // one, and a legacy value could sanitize to empty) so the gated RSVP portal is
+  // never left permanently disabled -- self-heal by minting a fresh one.
+  let rsvpToken = sanitizeRsvpToken(store?.rsvpToken)
+  if (!rsvpToken) {
+    rsvpToken = getRsvpToken()
+    await storeJson.merge(effects, { rsvpToken })
+  }
+
   // Resolve SMTP credentials from store
   const smtp = store?.smtp
   let smtpCredentials: T.SmtpValue | null = null
@@ -26,7 +37,18 @@ export const main = sdk.setupMain(async ({ effects }) => {
       smtpCredentials.from = smtp.value.customFrom
     }
   } else if (smtp?.selection === 'custom') {
-    smtpCredentials = smtp.value.provider.value
+    // The stored custom SMTP value uses the form shape (nested security
+    // union with a string port). Flatten it into the T.SmtpValue shape
+    // expected by the rest of the service.
+    const custom = smtp.value.provider.value
+    smtpCredentials = {
+      host: custom.host,
+      port: Number(custom.security.value.port),
+      from: custom.from,
+      username: custom.username,
+      password: custom.password ?? null,
+      security: custom.security.selection,
+    }
   }
 
   // Get the actual hostnames from StartOS service interfaces
@@ -43,7 +65,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
   // Write localsettings.py directly to subcontainer rootfs (not a volume)
   const localSettingsContent = generateLocalSettings({
     secretKey: store?.secretKey ?? '',
-    debug: true,
+    debug: false,
     allowedHosts,
     smtp: smtpCredentials,
     coupleName: store?.coupleName,
@@ -51,16 +73,17 @@ export const main = sdk.setupMain(async ({ effects }) => {
     weddingLocation: store?.weddingLocation,
     websiteUrl: store?.websiteUrl,
     contactEmail: store?.contactEmail,
+    rsvpToken,
   })
   await writeFile(
-    `${appSub.rootfs}/app/bigday/localsettings.py`,
+    `${await appSub.rootfs}/app/bigday/localsettings.py`,
     localSettingsContent,
   )
 
   // Create nginx subcontainer and write config
   const nginxSub = await getNginxSub(effects)
   await writeFile(
-    `${nginxSub.rootfs}/etc/nginx/conf.d/default.conf`,
+    `${await nginxSub.rootfs}/etc/nginx/conf.d/default.conf`,
     generateNginxConf(),
   )
 

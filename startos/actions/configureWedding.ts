@@ -1,7 +1,7 @@
 import { i18n } from '../i18n'
 import { storeJson } from '../fileModels/store.json'
 import { sdk } from '../sdk'
-import { getHttpInterfaceUrls } from '../utils'
+import { getHttpInterfaceUrls, sanitizeRsvpToken } from '../utils'
 
 const { InputSpec, Value } = sdk
 
@@ -47,6 +47,14 @@ const inputSpec = InputSpec.of({
     default: null,
     inputmode: 'email',
   }),
+  rsvpToken: Value.text({
+    name: i18n('RSVP Link Word'),
+    description: i18n(
+      'Short secret word in your RSVP link (e.g. .../rsvp/lovebirds/). Guests type this to reach the RSVP page. Leave blank to keep the current word.',
+    ),
+    required: false,
+    default: null,
+  }),
 })
 
 export const configureWedding = sdk.Action.withInput(
@@ -79,17 +87,24 @@ export const configureWedding = sdk.Action.withInput(
       weddingLocation: store?.weddingLocation || '',
       websiteUrl: store?.websiteUrl || undefined,
       contactEmail: store?.contactEmail || '',
+      rsvpToken: store?.rsvpToken || '',
     }
   },
 
   // the execution function
   async ({ effects, input }) => {
+    // Normalize the token to the URL-safe charset the gate enforces, so the
+    // stored value, the printed RSVP link, and Django's RSVP_TOKEN always agree.
+    // Omit the key entirely when blank/all-invalid so the current token is kept
+    // (not cleared) -- matching the "leave blank to keep the current word" hint.
+    const rsvpToken = sanitizeRsvpToken(input.rsvpToken)
     await storeJson.merge(effects, {
       coupleName: input.coupleName || undefined,
       weddingDate: input.weddingDate || undefined,
       weddingLocation: input.weddingLocation || undefined,
       websiteUrl: input.websiteUrl || undefined,
       contactEmail: input.contactEmail || undefined,
+      ...(rsvpToken ? { rsvpToken } : {}),
     })
   },
 )

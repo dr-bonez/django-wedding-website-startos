@@ -41,6 +41,10 @@ const dict = {
   'Public URL for the wedding website': 26,
   'Contact Email': 27,
   'Email address for guests to contact the couple': 28,
+
+  // actions/configureWedding.ts (RSVP token)
+  'RSVP Link Word': 29,
+  'Short secret word in your RSVP link (e.g. .../rsvp/lovebirds/). Guests type this to reach the RSVP page. Leave blank to keep the current word.': 30,
 } as const
 
 /**

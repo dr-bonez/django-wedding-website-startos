@@ -31,6 +31,8 @@ export default {
     26: 'URL pública del sitio web de bodas',
     27: 'Correo de contacto',
     28: 'Dirección de correo electrónico para que los invitados contacten a la pareja',
+    29: 'Palabra del enlace RSVP',
+    30: 'Palabra secreta corta en tu enlace RSVP (ej. .../rsvp/lovebirds/). Los invitados la escriben para llegar a la página de RSVP. Déjalo en blanco para mantener la palabra actual.',
   },
   de_DE: {
     0: 'Starte Django Wedding Website!',
@@ -62,6 +64,8 @@ export default {
     26: 'Öffentliche URL der Hochzeitswebseite',
     27: 'Kontakt-E-Mail',
     28: 'E-Mail-Adresse für Gäste, um das Paar zu kontaktieren',
+    29: 'RSVP-Link-Wort',
+    30: 'Kurzes Geheimwort in Ihrem RSVP-Link (z.B. .../rsvp/lovebirds/). Gäste geben es ein, um zur RSVP-Seite zu gelangen. Leer lassen, um das aktuelle Wort beizubehalten.',
   },
   pl_PL: {
     0: 'Uruchamianie Django Wedding Website!',
@@ -93,6 +97,8 @@ export default {
     26: 'Publiczny URL strony weselnej',
     27: 'E-mail kontaktowy',
     28: 'Adres e-mail do kontaktu gości z parą',
+    29: 'Słowo linku RSVP',
+    30: 'Krótkie tajne słowo w linku RSVP (np. .../rsvp/lovebirds/). Goście wpisują je, aby przejść do strony RSVP. Pozostaw puste, aby zachować obecne słowo.',
   },
   fr_FR: {
     0: 'Démarrage de Django Wedding Website !',
@@ -124,5 +130,7 @@ export default {
     26: 'URL publique du site web de mariage',
     27: 'E-mail de contact',
     28: 'Adresse e-mail pour que les invités contactent le couple',
+    29: 'Mot du lien RSVP',
+    30: 'Mot secret court dans votre lien RSVP (par ex. .../rsvp/lovebirds/). Les invités le saisissent pour accéder à la page RSVP. Laissez vide pour conserver le mot actuel.',
   },
 } satisfies Record<string, LangDict>
