@@ -1,10 +1,10 @@
 import { sdk } from '../sdk'
 import { setDependencies } from '../dependencies'
 import { setInterfaces } from '../interfaces'
-import { versionGraph } from '../install/versionGraph'
+import { versionGraph } from '../versions'
 import { actions } from '../actions'
 import { restoreInit } from '../backups'
-import { initializeService } from './initializeService'
+import { bootstrapDjango } from './bootstrapDjango'
 
 export const init = sdk.setupInit(
   restoreInit,
@@ -12,7 +12,7 @@ export const init = sdk.setupInit(
   setInterfaces,
   setDependencies,
   actions,
-  initializeService,
+  bootstrapDjango,
 )
 
 export const uninit = sdk.setupUninit(versionGraph)

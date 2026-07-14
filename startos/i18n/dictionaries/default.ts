@@ -24,7 +24,7 @@ const dict = {
   'Configure SMTP': 13,
   'Add SMTP credentials for sending email invitations and RSVPs': 14,
 
-  // init/initializeService.ts
+  // init/bootstrapDjango.ts
   'Retrieve the admin password so you can manage your wedding website': 15,
 
   // actions/configureWedding.ts

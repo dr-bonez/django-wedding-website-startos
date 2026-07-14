@@ -10,7 +10,10 @@ import {
 } from '../utils'
 import { storeJson } from '../fileModels/store.json'
 
-export const initializeService = sdk.setupOnInit(async (effects, kind) => {
+// On fresh install: seed the store with generated secrets, write an initial
+// localsettings.py, run Django's migrations, create the admin superuser, and
+// prompt the user to retrieve their credentials.
+export const bootstrapDjango = sdk.setupOnInit(async (effects, kind) => {
   if (kind !== 'install') return
 
   const adminPassword = getRandomPassword()
@@ -25,7 +28,7 @@ export const initializeService = sdk.setupOnInit(async (effects, kind) => {
   })
 
   // Create subcontainer for initial setup
-  const appSub = await getAppSub(effects)
+  const appSub = getAppSub(effects)
 
   // Write initial localsettings.py (will be overwritten on startup with actual hostnames)
   const localSettingsContent = generateLocalSettings({

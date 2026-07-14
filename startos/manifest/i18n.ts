@@ -19,26 +19,3 @@ export const long = {
   fr_FR:
     "Django Wedding Website est une solution complète de site web de mariage avec gestion intégrée des invités. Les fonctionnalités incluent un site web responsive d'une seule page, le suivi des RSVP, la gestion de la liste des invités avec import/export Excel/CSV, des modèles d'e-mail de save-the-date, des pages d'invitation personnalisées et un tableau de bord d'administration complet.",
 }
-
-export const alertInstall = {
-  en_US:
-    'After installation, use the "Get Admin Credentials" action to retrieve your admin username and password.',
-  es_ES:
-    'Después de la instalación, use la acción "Obtener credenciales de administrador" para recuperar su nombre de usuario y contraseña de administrador.',
-  de_DE:
-    'Verwenden Sie nach der Installation die Aktion "Admin-Zugangsdaten abrufen", um Ihren Admin-Benutzernamen und Ihr Passwort abzurufen.',
-  pl_PL:
-    'Po instalacji użyj akcji "Pobierz dane administratora", aby uzyskać nazwę użytkownika i hasło administratora.',
-  fr_FR:
-    "Après l'installation, utilisez l'action « Obtenir les identifiants admin » pour récupérer votre nom d'utilisateur et mot de passe administrateur.",
-}
-
-export const alertUninstall = {
-  en_US: 'All wedding data and guest information will be deleted.',
-  es_ES:
-    'Todos los datos de la boda y la información de los invitados serán eliminados.',
-  de_DE: 'Alle Hochzeitsdaten und Gästeinformationen werden gelöscht.',
-  pl_PL: 'Wszystkie dane weselne i informacje o gościach zostaną usunięte.',
-  fr_FR:
-    'Toutes les données du mariage et les informations des invités seront supprimées.',
-}

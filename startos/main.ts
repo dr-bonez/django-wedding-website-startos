@@ -8,6 +8,7 @@ import {
   sanitizeRsvpToken,
   getAppSub,
   getNginxSub,
+  getUiAddressInfo,
   generateLocalSettings,
   generateNginxConf,
 } from './utils'
@@ -53,14 +54,12 @@ export const main = sdk.setupMain(async ({ effects }) => {
 
   // Get the actual hostnames from StartOS service interfaces
   const allowedHosts =
-    (await sdk.serviceInterface
-      .getOwn(effects, 'ui', (i) =>
-        i?.addressInfo?.format('hostname-info').map((h) => h.hostname),
-      )
-      .const()) || []
+    (await getUiAddressInfo(effects, (a) =>
+      a?.format('hostname-info').map((h) => h.hostname),
+    ).const()) || []
 
   // Create Django subcontainer and write config directly to its rootfs
-  const appSub = await getAppSub(effects)
+  const appSub = getAppSub(effects)
 
   // Write localsettings.py directly to subcontainer rootfs (not a volume)
   const localSettingsContent = generateLocalSettings({
@@ -81,7 +80,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
   )
 
   // Create nginx subcontainer and write config
-  const nginxSub = await getNginxSub(effects)
+  const nginxSub = getNginxSub(effects)
   await writeFile(
     `${await nginxSub.rootfs}/etc/nginx/conf.d/default.conf`,
     generateNginxConf(),
@@ -118,6 +117,10 @@ export const main = sdk.setupMain(async ({ effects }) => {
           '120',
           '--access-logfile',
           '-',
+          // Log the client IP nginx forwards (X-Forwarded-For) instead of
+          // %(h)s, which is always nginx's loopback peer.
+          '--access-logformat',
+          '%({x-forwarded-for}i)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"',
           '--error-logfile',
           '-',
         ],

@@ -1,5 +1,5 @@
 import { setupManifest } from '@start9labs/start-sdk'
-import { short, long, alertInstall, alertUninstall } from './i18n'
+import { short, long } from './i18n'
 
 export const manifest = setupManifest({
   id: 'django-wedding-website',
@@ -9,7 +9,6 @@ export const manifest = setupManifest({
   upstreamRepo: 'https://github.com/czue/django-wedding-website',
   marketingUrl: 'https://github.com/czue/django-wedding-website',
   donationUrl: null,
-  docsUrls: ['https://github.com/czue/django-wedding-website#readme'],
   description: { short, long },
   volumes: ['main'],
   images: {
@@ -28,14 +27,6 @@ export const manifest = setupManifest({
       },
       arch: ['x86_64', 'aarch64'],
     },
-  },
-  alerts: {
-    install: alertInstall,
-    update: null,
-    uninstall: alertUninstall,
-    restore: null,
-    start: null,
-    stop: null,
   },
   dependencies: {},
 })

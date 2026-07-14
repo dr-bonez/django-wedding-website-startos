@@ -2,6 +2,9 @@ import { T, utils } from '@start9labs/start-sdk'
 import { sdk } from './sdk'
 
 export const uiPort = 8080 as const
+// host/interface ids shared by interfaces.ts and every host.getOwn walk
+export const uiHostId = 'ui-multi'
+export const uiInterfaceId = 'ui'
 
 export function getRandomPassword(length: number = 24): string {
   return utils.getDefaultString({
@@ -48,12 +51,21 @@ export function getNginxSub(effects: T.Effects) {
   )
 }
 
+// Single source of truth for the host walk to the UI interface's filled
+// address info (undefined until the interface has been exported).
+export function getUiAddressInfo<M>(
+  effects: T.Effects,
+  format: (a: utils.FilledAddressInfo | undefined) => M,
+) {
+  return sdk.host.getOwn(effects, uiHostId, (h) =>
+    format(h?.bindings[uiPort]?.interfaces[uiInterfaceId]?.addressInfo),
+  )
+}
+
 export async function getHttpInterfaceUrls(
   effects: T.Effects,
 ): Promise<string[]> {
-  return sdk.serviceInterface
-    .getOwn(effects, 'ui', (i) => i?.addressInfo?.nonLocal.format() || [])
-    .const()
+  return getUiAddressInfo(effects, (a) => a?.nonLocal.format() || []).const()
 }
 
 export function generateNginxConf(): string {
@@ -65,6 +77,15 @@ server {
     listen 8080;
     server_name _;
 
+    # The StartOS reverse proxy always sets X-Forwarded-For (and strips any
+    # client-supplied value), so its bridge-gateway addresses are safe to
+    # trust. Rewrites $remote_addr to the real client IP so access logs (and
+    # the X-Forwarded-For passed upstream) show the client, not the bridge.
+    set_real_ip_from 10.0.3.1;
+    set_real_ip_from fd00:3::1;
+    real_ip_header X-Forwarded-For;
+    real_ip_recursive on;
+
     access_log /dev/stdout;
     error_log /dev/stderr info;
 
@@ -75,6 +96,8 @@ server {
     }
 
     location / {
+        # append rather than replace, so the client IP still reaches Django
+        # even if the trusted-proxy match above ever stops firing
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header Host $http_host;
         proxy_redirect off;
